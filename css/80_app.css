@@ -5615,3 +5615,35 @@ li.hide + li.version .badge .tooltip .popover-arrow {
     width: 100px;
     color: #7092ff;
 }
+
+.sat2graph-over-map {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    /*border: 5px outset red;*/
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: flex-end;
+}
+
+.sat2graph-box {
+    height: 100%;
+    width: 100%;
+}
+
+.sat2graph-path {
+    fill: none;
+    stroke: red;
+    stroke-width: 5;
+}
+
+.sat2graph-text {
+    fill: rgba(255, 30, 30, 128);
+    font-size: 24px;
+}
+
+
+
