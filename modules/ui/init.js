@@ -47,6 +47,8 @@ import { uiPaneIssues } from './panes/issues';
 import { uiPaneMapData } from './panes/map_data';
 import { uiPanePreferences } from './panes/preferences';
 
+import { uiSat2GraphBox } from './sat2graphbox';
+
 export function uiInit(context) {
     var _initCounter = 0;
     var _needWidth = {};
@@ -341,6 +343,12 @@ export function uiInit(context) {
         if (!ui.hash.hadHash) {
             map.centerZoom([0, 0], 2);
         }
+
+        var Sat2GraphOverMap = content
+            .append('div')
+            .attr('class', 'sat2graph-over-map')
+            .call(uiSat2GraphBox(context));
+
 
         // Bind events
         window.onbeforeunload = function() {
