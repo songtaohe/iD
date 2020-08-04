@@ -88,7 +88,7 @@ export function uiSat2GraphBox(context) {
             .attr("height", posShow1[1] - posShow2[1]);
 
         selection.select('.sat2graph-text')
-            .text("size" + size + " lat,lon:" + locShow[1].toFixed(6) + "," + locShow[0].toFixed(6))
+            .text("Size: " + size + " lat,lon:" + locShow[1].toFixed(6) + "," + locShow[0].toFixed(6))
 
         console.log("{\"lat\":"+locShow[1].toFixed(6)+" ,"+"\"lon\":"+locShow[0].toFixed(6)+", \"lat_n\":" + isize+ ", \"lon_n\":" + isize+ "},");
         // selection.select('.scale-path')

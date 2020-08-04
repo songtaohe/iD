@@ -49,6 +49,8 @@ import { uiPaneMapData } from './panes/map_data';
 import { uiPanePreferences } from './panes/preferences';
 
 import { uiSat2GraphBox } from './sat2graphbox';
+import { uiSat2GraphInteract } from './sat2graphInteract';
+
 
 export function uiInit(context) {
     var _initCounter = 0;
@@ -341,7 +343,7 @@ export function uiInit(context) {
         var Sat2GraphOverMap = content
             .append('div')
             .attr('class', 'sat2graph-over-map')
-            .call(uiSat2GraphBox(context));
+            .call(uiSat2GraphInteract(context));
 
 
         // Bind events

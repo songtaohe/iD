@@ -5641,8 +5641,9 @@ li.hide + li.version .badge .tooltip .popover-arrow {
 }
 
 .sat2graph-text {
-    fill: rgba(255, 30, 30, 128);
+    fill: rgba(255, 255, 0, 255);
     font-size: 24px;
+    text-shadow: 2px 2px #000000;
 }
 
 
