@@ -1,5 +1,5 @@
 import { displayLength } from '../util/units';
-import { geoLonToMeters, geoMetersToLon, geoMetersToLat } from '../geo';
+import { geoLonToMeters, geoLatToMeters, geoMetersToLon, geoMetersToLat } from '../geo';
 import { localizer } from '../core/localizer';
 
 
@@ -8,13 +8,71 @@ export function uiSat2GraphInteract(context) {
     var projection = context.projection,
         isImperial = !localizer.usesMetric(),
         maxLength = 180,
-        tickHeight = 8;
+        tickHeight = 8,
+        boxsize = 500;
+
+    var selectValue = "";
 
     var lines = [];
     var points = [];
     var oldLoc = [];
-    var curState = 0 ;
+    var newOldLoc = [];
 
+    var curState = 0 ;
+    var curBK = 0;
+
+    function updateText(selection){
+        if (curState == 0) {
+            var text = selection.select('.sat2graph-text')
+                .text("");
+
+            text.append("tspan")
+                .text("Press 's' to run Sat2Graph.")
+                .attr("x",50)
+                .attr("y",480);
+
+            text.append("tspan")
+                .text("Press 'd' to toggle brightness.")
+                .attr("x",50)
+                .attr("y",510);
+
+            text.append("tspan")
+                .text("Press 'c' to clear the results.")
+                .attr("x",50)
+                .attr("y",540);
+                
+            text.append("tspan")
+                .text("Status: Ready")
+                .attr("x",50)
+                .attr("y",590)
+                .attr("fill","rgba(0, 255, 0, 1.0)");
+
+        } else {
+            var text = selection.select('.sat2graph-text')
+                .text("");
+
+            text.append("tspan")
+                .text("Press 's' to run Sat2Graph.")
+                .attr("x",50)
+                .attr("y",480);
+
+            text.append("tspan")
+                .text("Press 'd' to toggle brightness.")
+                .attr("x",50)
+                .attr("y",510);
+
+            text.append("tspan")
+                .text("Press 'c' to clear the results.")
+                .attr("x",50)
+                .attr("y",540);
+                
+            text.append("tspan")
+                .text("Status: Running...")
+                .attr("x",50)
+                .attr("y",590)
+                .attr("fill","rgba(255, 127, 0, 1.0)");
+        }
+    }
 
     function update(selection) {
         // choose loc1, loc2 along bottom of viewport (near where the scale will be drawn)
@@ -26,11 +84,12 @@ export function uiSat2GraphInteract(context) {
         var dims = context.map().dimensions(), 
             loc1 = projection.invert([0, dims[1]]),
             loc2 = projection.invert([dims[1], dims[1]]),
-            size = 352/2;
+            size = boxsize/2;
 
         var posCenter = [dims[0]/2,dims[1]/2];
         var locCenter = projection.invert(posCenter);
 
+        var loctile = [locCenter[0] - geoMetersToLon(1024, locCenter[1]),locCenter[1] - geoMetersToLat(1024)];
         var locShow1 = [locCenter[0] - geoMetersToLon(size, locCenter[1]),locCenter[1] - geoMetersToLat(size)];
         var posShow1 = projection(locShow1);
 
@@ -46,15 +105,15 @@ export function uiSat2GraphInteract(context) {
             .attr("height", posShow1[1] - posShow2[1]);
 
 
-        var graphsize = 2 * scale;
+        var graphsize = 3 * scale;
 
         if (graphsize < 1) {
             graphsize = 1;
         }
 
-        console.log(oldLoc);
+        //console.log(oldLoc);
         var bias = projection(oldLoc);
-        console.log(bias);
+        //console.log(bias);
 
 
         var myline = selection.select('.sat2graph-box')
@@ -89,7 +148,6 @@ export function uiSat2GraphInteract(context) {
         circle.exit().remove();
         circle.enter().append("circle")
             .attr("fill", 'indianred');
-
         
 
         circle
@@ -99,17 +157,19 @@ export function uiSat2GraphInteract(context) {
             .attr("cy", function(d,i){
                 return bias[1] + d[0] * scale;
             })
-            .attr("r",graphsize * 1);
+            .attr("r",graphsize * 1.5);
 
-        if (curState == 0) {
-            selection.select('.sat2graph-text')
-                .text("Press s to run Sat2Graph.\nStatus: Ready");
-        } else {
-            selection.select('.sat2graph-text')
-                .text("Press s to run Sat2Graph.\nStatus: Running");
-        }
+        selection.select('.sat2graph-box')
+            .selectAll("circle").raise();
 
-        //console.log("{\"lat\":"+locShow[1].toFixed(6)+" ,"+"\"lon\":"+locShow[0].toFixed(6)+", \"lat_n\":" + isize+ ", \"lon_n\":" + isize+ "},");
+
+        updateText(selection);
+
+        //console.log("updata number of lines: " + lines.length);
+        //console.log("updata number of points: " + points.length);
+
+
+        console.log("{\"lat\":"+loctile[1].toFixed(6)+" ,"+"\"lon\":"+loctile[0].toFixed(6)+", \"lat_n\":1" + ", \"lon_n\":1" + "},");
         // selection.select('.scale-path')
         //     .attr('d', 'M0.5,0.5v' + tickHeight + 'h' + scale.px + 'v-' + tickHeight);
 
@@ -121,20 +181,68 @@ export function uiSat2GraphInteract(context) {
     }
 
     function updateResult(data, selection) {
-        lines = data.graph.graph[0];
-        points = data.graph.graph[1];
+        new_lines = data.graph.graph[0];
+        new_points = data.graph.graph[1];
 
-        console.log(lines);
-        console.log(points);
+        if (oldLoc.length == 2) {
+            // update pos in lines and points to newOldLoc;
+
+            var biasx = geoLonToMeters(newOldLoc[0] - oldLoc[0], newOldLoc[1]);
+            var biasy = geoLatToMeters(newOldLoc[1] - oldLoc[1]);
+
+            console.log([biasx, biasy]);
+
+            for (i = 0; i< lines.length; i++) {
+                lines[i][0][0] += biasy;
+                lines[i][1][0] += biasy;
+                lines[i][0][1] -= biasx;
+                lines[i][1][1] -= biasx;
+            }
+
+            for (i = 0; i< points.length; i++) {
+                points[i][0] += biasy;
+                points[i][1] -= biasx;
+            }
+        }
+
+        lines = lines.concat(new_lines);
+        points = points.concat(new_points);
+
+        console.log("number of lines: " + lines.length);
+        console.log("number of points: " + points.length);
         
         curState = 0;
+        oldLoc = [newOldLoc[0], newOldLoc[1]];
 
-        selection.select('.sat2graph-text')
-            .text("Press s to run Sat2Graph.\nStatus: Ready")
+        //update(selection);
+        context.map().pan([1,1],100);
+    }
 
+
+    function cleargraph(selection) {
+        
+        points = [];
+        lines = [];
 
         update(selection);
     }
+
+    function changeBKcolor(selection) {
+        
+        curBK = 1-curBK;
+
+        if (curBK < 0.5) {
+            console.log("hit");
+            selection.select('.sat2graph-box')
+            .style("background-color","rgba(0, 0, 0, 0.75)");
+
+        } else {
+            selection.select('.sat2graph-box')
+            .style("background-color","rgba(0, 0, 0, 0)");
+        }     
+    }
+
+
 
     function runSat2Graph(selection) {
         if (curState == 1) {
@@ -142,11 +250,12 @@ export function uiSat2GraphInteract(context) {
         }
 
         console.log("run sat2graph");
-        url = "http://localhost:8002/";
+        //url = "http://localhost:8002/";
+        url = "http://128.30.198.28:8123/";
         var dims = context.map().dimensions(), 
             loc1 = projection.invert([0, dims[1]]),
             loc2 = projection.invert([dims[1], dims[1]]),
-            size = 352/2;
+            size = boxsize/2;
 
         var posCenter = [dims[0]/2,dims[1]/2];
         var locCenter = projection.invert(posCenter);
@@ -157,12 +266,13 @@ export function uiSat2GraphInteract(context) {
         var locShow2 = [locCenter[0] + geoMetersToLon(size, locCenter[1]),locCenter[1] + geoMetersToLat(size)];
         var posShow2 = projection(locShow2);
 
-        oldLoc = [locShow1[0], locShow2[1]];
+        newOldLoc = [locShow1[0], locShow2[1]];
 
         curState = 1;
 
-        selection.select('.sat2graph-text')
-            .text("Press s to run Sat2Graph.\nStatus: Running...")
+        updateText(selection);
+
+        var msg = {"lat":locShow1[1], "lon":locShow1[0], "v_thr": 0.05, "e_thr": 0.05, "snap_dist": 20, "snap_w": 100};
 
         fetch(url, {
             method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -175,10 +285,11 @@ export function uiSat2GraphInteract(context) {
             },
             redirect: 'follow', // manual, *follow, error
             referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-            body: JSON.stringify({"lat":locShow1[1], "lon":locShow1[0]}) // body data type must match "Content-Type" header
+            body: JSON.stringify(msg) // body data type must match "Content-Type" header
           })
-        .then(response => response.json())
+        .then(response => response.json(response))
         .then(data => updateResult(data, selection));
+        // .then(update(selection));
     }
 
 
@@ -234,6 +345,24 @@ export function uiSat2GraphInteract(context) {
             .attr("x",50)
             .attr("y",150);
 
+
+        // var models = ["Sat2Graph 20 U.S. Cities (DLA)", "Sat2Graph Global Model (U-NET)"]
+        // var select = selection.append('select')
+        //     .attr('class','select')
+        //     .style("left","50px")
+        //     .style("top","440px")
+        //     .style("position","absolute")
+        //     .on('change', onchange);
+
+        // var options = select.selectAll('option')
+        //     .data(models).enter()
+        //     .append('option')
+        //     .text(function (d) { return d; });
+
+        // function onchange() {
+        //     selectValue = sat2graphbox.select('select').property('value');
+        // }
+
         selection.call(update);
 
         context.map().on('move.scale', function() {
@@ -242,6 +371,14 @@ export function uiSat2GraphInteract(context) {
 
         context.keybinding().on('s', function() {
             runSat2Graph(selection);
+        });
+
+        context.keybinding().on('d', function() {
+            changeBKcolor(selection);
+        });
+
+         context.keybinding().on('c', function() {
+            cleargraph(selection);
         });
     };
 }
