@@ -272,7 +272,7 @@ export function uiSat2GraphInteract(context) {
 
         updateText(selection);
 
-        var msg = {"lat":locShow1[1], "lon":locShow1[0], "v_thr": 0.05, "e_thr": 0.05, "snap_dist": 20, "snap_w": 100};
+        var msg = {"lat":locShow1[1], "lon":locShow1[0], "v_thr": 0.05, "e_thr": 0.05, "snap_dist": 15, "snap_w": 100};
 
         fetch(url, {
             method: 'POST', // *GET, POST, PUT, DELETE, etc.
