@@ -20,12 +20,16 @@ export function uiSat2GraphInteract(context) {
 
     var curState = 0 ;
     var curBK = 0;
+    var curModelID = 0;
+    var nModels = 2;
+    var modelNames = ["80-City Global Model", "20-City US Model"]
+
 
     function updateText(selection){
-        if (curState == 0) {
-            var text = selection.select('.sat2graph-text')
+        var text = selection.select('.sat2graph-text')
                 .text("");
 
+        if (curState == 0) {
             text.append("tspan")
                 .text("Press 's' to run Sat2Graph.")
                 .attr("x",50)
@@ -40,17 +44,24 @@ export function uiSat2GraphInteract(context) {
                 .text("Press 'c' to clear the results.")
                 .attr("x",50)
                 .attr("y",540);
-                
+            
+            text.append("tspan")
+                .text("Press 'm' to switch model.")
+                .attr("x",50)
+                .attr("y",570);
+
+            text.append("tspan")
+                .text("Current model: " + modelNames[curModelID])
+                .attr("x",50)
+                .attr("y",600);
+
             text.append("tspan")
                 .text("Status: Ready")
                 .attr("x",50)
-                .attr("y",590)
+                .attr("y",650)
                 .attr("fill","rgba(0, 255, 0, 1.0)");
 
         } else {
-            var text = selection.select('.sat2graph-text')
-                .text("");
-
             text.append("tspan")
                 .text("Press 's' to run Sat2Graph.")
                 .attr("x",50)
@@ -67,11 +78,25 @@ export function uiSat2GraphInteract(context) {
                 .attr("y",540);
                 
             text.append("tspan")
+                .text("Press 'm' to switch model.")
+                .attr("x",50)
+                .attr("y",570);
+
+            text.append("tspan")
+                .text("Current model: " + modelNames[curModelID])
+                .attr("x",50)
+                .attr("y",600);
+
+            text.append("tspan")
                 .text("Status: Running...")
                 .attr("x",50)
-                .attr("y",590)
+                .attr("y",650)
                 .attr("fill","rgba(255, 127, 0, 1.0)");
         }
+
+        
+
+
     }
 
     function update(selection) {
@@ -242,7 +267,12 @@ export function uiSat2GraphInteract(context) {
         }     
     }
 
+    function switchmodel(selection) {
+        curModelID = (curModelID + 1) % nModels;
 
+
+        update(selection);
+    }
 
     function runSat2Graph(selection) {
         if (curState == 1) {
@@ -272,7 +302,7 @@ export function uiSat2GraphInteract(context) {
 
         updateText(selection);
 
-        var msg = {"lat":locShow1[1], "lon":locShow1[0], "v_thr": 0.05, "e_thr": 0.05, "snap_dist": 15, "snap_w": 100};
+        var msg = {"lat":locShow1[1], "lon":locShow1[0], "v_thr": 0.05, "e_thr": 0.05, "snap_dist": 15, "snap_w": 100, "model_id" : curModelID};
 
         fetch(url, {
             method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -379,6 +409,10 @@ export function uiSat2GraphInteract(context) {
 
          context.keybinding().on('c', function() {
             cleargraph(selection);
+        });
+
+        context.keybinding().on('m', function() {
+            switchmodel(selection);
         });
     };
 }
