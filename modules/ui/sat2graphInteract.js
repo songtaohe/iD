@@ -9,7 +9,7 @@ export function uiSat2GraphInteract(context) {
         isImperial = !localizer.usesMetric(),
         maxLength = 180,
         tickHeight = 8,
-        boxsize = 1000;
+        boxsize = 500;
 
     var selectValue = "";
 
@@ -20,7 +20,7 @@ export function uiSat2GraphInteract(context) {
 
     var curState = 0 ;
     var curBK = 0;
-    var curModelID = 2;
+    var curModelID = 0;
     var nModels = 4;
     var modelNames = ["80-City Global", "20-City US", "20-City US V2 (1km)", "20-City US V2 (500m)"]
 
