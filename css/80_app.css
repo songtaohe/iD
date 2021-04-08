@@ -5637,7 +5637,7 @@ li.hide + li.version .badge .tooltip .popover-arrow {
 
 .sat2graph-path {
     fill: none;
-    stroke: red;
+    stroke: rgb(0, 255, 85);
     stroke-width: 5;
 }
 
