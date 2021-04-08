@@ -22,7 +22,7 @@ export function uiSat2GraphInteract(context) {
     var curBK = 0;
     var curModelID = 2;
     var nModels = 4;
-    var modelNames = ["80-City Global", "20-City US", "Sat2Graph-Exp (1km, slower)", "Sat2Graph-Exp (500m)"]
+    var modelNames = ["80-City Global", "20-City US", "Sat2Graph-Exp (1km)", "Sat2Graph-Exp (500m)"]
 
 
     function updateText(selection){
@@ -160,6 +160,7 @@ export function uiSat2GraphInteract(context) {
             
 
         myline
+            //.attr('filter', 'url(#' + 'dropshadow' + ')' )
             .attr("x1",function(d,i){
                 return bias[0] + d[0][1] * scale;
             })
@@ -398,6 +399,9 @@ export function uiSat2GraphInteract(context) {
         var sat2graphbox = selection.append('svg')
             .attr('class', 'sat2graph-box');
         
+        
+
+
         sat2graphbox.append('rect')
             .attr('x', 30)
             .attr('y', 100)
@@ -467,6 +471,39 @@ export function uiSat2GraphInteract(context) {
         // function onchange() {
         //     selectValue = sat2graphbox.select('select').property('value');
         // }
+
+        // Too slow
+        // var activeDropShadow = "dropshadow";
+        // var svg = sat2graphbox;
+        // var filter = svg.append('defs')
+        //     .append('filter')
+        //         .attr('id', activeDropShadow)
+        //         // x, y, width and height represent values in the current coordinate system that results
+        //         // from taking the current user coordinate system in place at the time when the
+        //         // <filter> element is referenced
+        //         // (i.e., the user coordinate system for the element referencing the <filter> element via a filter attribute).
+        //         .attr('filterUnits','userSpaceOnUse');
+    
+        // filter.append('feGaussianBlur')
+        //     .attr('in', 'SourceAlpha')
+        //     .attr('stdDeviation', 5.0);
+    
+        // filter.append('feOffset')
+        //     .attr('dx', 0)
+        //     .attr('dy', 0);
+    
+        // var feComponentTransfer = filter.append('feComponentTransfer');
+        // feComponentTransfer
+        //     .append('feFuncA')
+        //         .attr('type', 'linear')
+        //         .attr('slope', 0.5);
+    
+        // var feMerge = filter.append('feMerge');
+        // feMerge.append('feMergeNode');
+        // feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+
+
+
 
         selection.call(update);
 
