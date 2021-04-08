@@ -9,7 +9,7 @@ export function uiSat2GraphInteract(context) {
         isImperial = !localizer.usesMetric(),
         maxLength = 180,
         tickHeight = 8,
-        boxsize = 500;
+        boxsize = 1000;
 
     var selectValue = "";
 
@@ -20,77 +20,77 @@ export function uiSat2GraphInteract(context) {
 
     var curState = 0 ;
     var curBK = 0;
-    var curModelID = 0;
-    var nModels = 3;
-    var modelNames = ["80-City Global Model", "20-City US Model", "20-City US Model (V2)"]
+    var curModelID = 2;
+    var nModels = 4;
+    var modelNames = ["80-City Global", "20-City US", "Sat2Graph-Exp (1km, slower)", "Sat2Graph-Exp (500m)"]
 
 
     function updateText(selection){
         var text = selection.select('.sat2graph-text')
                 .text("");
-
+        var adjust = -350;
         if (curState == 0) {
             text.append("tspan")
                 .text("Press 's' to run Sat2Graph.")
                 .attr("x",50)
-                .attr("y",480);
+                .attr("y",480+adjust);
 
             text.append("tspan")
                 .text("Press 'd' to toggle brightness.")
                 .attr("x",50)
-                .attr("y",510);
+                .attr("y",510+adjust);
 
             text.append("tspan")
                 .text("Press 'c' to clear the results.")
                 .attr("x",50)
-                .attr("y",540);
+                .attr("y",540+adjust);
             
             text.append("tspan")
                 .text("Press 'm' to switch model.")
                 .attr("x",50)
-                .attr("y",570);
+                .attr("y",570+adjust);
 
             text.append("tspan")
                 .text("Current model: " + modelNames[curModelID])
                 .attr("x",50)
-                .attr("y",600);
+                .attr("y",600+adjust);
 
             text.append("tspan")
                 .text("Status: Ready")
                 .attr("x",50)
-                .attr("y",650)
+                .attr("y",650+adjust)
                 .attr("fill","rgba(0, 255, 0, 1.0)");
 
         } else {
             text.append("tspan")
                 .text("Press 's' to run Sat2Graph.")
                 .attr("x",50)
-                .attr("y",480);
+                .attr("y",480+adjust);
 
             text.append("tspan")
                 .text("Press 'd' to toggle brightness.")
                 .attr("x",50)
-                .attr("y",510);
+                .attr("y",510+adjust);
 
             text.append("tspan")
                 .text("Press 'c' to clear the results.")
                 .attr("x",50)
-                .attr("y",540);
+                .attr("y",540+adjust);
                 
             text.append("tspan")
                 .text("Press 'm' to switch model.")
                 .attr("x",50)
-                .attr("y",570);
+                .attr("y",570+adjust);
 
             text.append("tspan")
                 .text("Current model: " + modelNames[curModelID])
                 .attr("x",50)
-                .attr("y",600);
+                .attr("y",600+adjust);
 
             text.append("tspan")
                 .text("Status: Running...")
                 .attr("x",50)
-                .attr("y",650)
+                .attr("y",650+adjust)
                 .attr("fill","rgba(255, 127, 0, 1.0)");
         }
 
@@ -136,6 +136,15 @@ export function uiSat2GraphInteract(context) {
             graphsize = 1;
         }
 
+        var opacity = 1.0;
+
+        if (scale > 1.5) {
+            opacity = 1.0 - (scale-1.5)/3.0;
+            if (opacity < 0.2) {
+                opacity = 0.2;
+            }
+        }
+
         //console.log(oldLoc);
         var bias = projection(oldLoc);
         //console.log(bias);
@@ -163,7 +172,38 @@ export function uiSat2GraphInteract(context) {
             .attr("y2",function(d,i){
                 return bias[1] + d[1][0] * scale;
             })
-            .style("stroke-width", graphsize);
+            .style("opacity", opacity)
+            .style("stroke-linecap","round")
+            .style("stroke-width", function(d,i){
+                if (d.length == 2) {
+                    return graphsize*2;
+                } else {
+                    if (d[2] == 0) {
+                        return graphsize *1.5;
+                    }
+                    if (d[2] == 1) {
+                        return graphsize *2;
+                    }
+                    if (d[2] == 2) {
+                        return graphsize *2.5;
+                    }
+                }
+            })
+            .style("stroke", function(d,i){
+                if (d.length == 2) {
+                    return "Orange";
+                } else {
+                    if (d[2] == 0) {
+                        return "GhostWhite";
+                    }
+                    if (d[2] == 1) {
+                        return "Gold";
+                    }
+                    if (d[2] == 2) {
+                        return "OrangeRed";
+                    }
+                }
+            });
 
 
         var circle = selection.select('.sat2graph-box')
@@ -172,7 +212,10 @@ export function uiSat2GraphInteract(context) {
 
         circle.exit().remove();
         circle.enter().append("circle")
-            .attr("fill", 'indianred');
+            .style("opacity", opacity)
+            .attr("fill", 'DarkGray');
+            
+        //.attr("fill", 'indianred');
         
 
         circle
@@ -182,7 +225,7 @@ export function uiSat2GraphInteract(context) {
             .attr("cy", function(d,i){
                 return bias[1] + d[0] * scale;
             })
-            .attr("r",graphsize * 1.5);
+            .attr("r",graphsize * 0.8);
 
         selection.select('.sat2graph-box')
             .selectAll("circle").raise();
@@ -306,13 +349,27 @@ export function uiSat2GraphInteract(context) {
 
         updateText(selection);
 
-        var msg = {"lat":locShow1[1], "lon":locShow1[0], "v_thr": 0.05, "e_thr": 0.05, "snap_dist": 15, "snap_w": 100, "model_id" : curModelID};
-        if (curModelID == 3) {
-            msg["size"] = 1000;
-            msg["padding"] = 72;
-            msg["stride"] = 176;
+        var realModelId = curModelID;
+        if (realModelId == 3) {
+            realModelId = 2;
         }
-        
+
+        var msg = {"lat":locShow1[1], "lon":locShow1[0], "v_thr": 0.05, "e_thr": 0.05, "snap_dist": 15, "snap_w": 100, "model_id" : realModelId};
+        if (curModelID == 2) {
+            msg["size"] = 1000;
+            msg["padding"] = 28;
+            msg["stride"] = 176;
+            msg["nPhase"] = 1;
+        }
+
+        if (curModelID == 3) {
+            msg["size"] = 500;
+            msg["padding"] = 14;
+            msg["stride"] = 176;
+            msg["nPhase"] = 1;
+        }
+
+
         fetch(url, {
             method: 'POST', // *GET, POST, PUT, DELETE, etc.
             mode: 'cors', // no-cors, *cors, same-origin
@@ -340,6 +397,15 @@ export function uiSat2GraphInteract(context) {
 
         var sat2graphbox = selection.append('svg')
             .attr('class', 'sat2graph-box');
+        
+        sat2graphbox.append('rect')
+            .attr('x', 30)
+            .attr('y', 100)
+            .attr('rx', 15)
+            .attr('width', 400)
+            .attr('height', 230)
+            .attr('opacity', 0.5)
+            .attr('fill', 'black');
 
         sat2graphbox
             .append('rect')
