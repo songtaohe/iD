@@ -21,8 +21,8 @@ export function uiSat2GraphInteract(context) {
     var curState = 0 ;
     var curBK = 0;
     var curModelID = 0;
-    var nModels = 2;
-    var modelNames = ["80-City Global Model", "20-City US Model"]
+    var nModels = 3;
+    var modelNames = ["80-City Global Model", "20-City US Model", "20-City US Model (V2)"]
 
 
     function updateText(selection){
@@ -269,7 +269,11 @@ export function uiSat2GraphInteract(context) {
 
     function switchmodel(selection) {
         curModelID = (curModelID + 1) % nModels;
-
+        if (curModelID == 2) {
+            boxsize = 1000;
+        } else {
+            boxsize = 500;
+        }
 
         update(selection);
     }
@@ -303,7 +307,12 @@ export function uiSat2GraphInteract(context) {
         updateText(selection);
 
         var msg = {"lat":locShow1[1], "lon":locShow1[0], "v_thr": 0.05, "e_thr": 0.05, "snap_dist": 15, "snap_w": 100, "model_id" : curModelID};
-
+        if (curModelID == 3) {
+            msg["size"] = 1000;
+            msg["padding"] = 72;
+            msg["stride"] = 176;
+        }
+        
         fetch(url, {
             method: 'POST', // *GET, POST, PUT, DELETE, etc.
             mode: 'cors', // no-cors, *cors, same-origin
