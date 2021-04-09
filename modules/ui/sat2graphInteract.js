@@ -11,6 +11,7 @@ export function uiSat2GraphInteract(context) {
         tickHeight = 8,
         boxsize = 500;
 
+    var sessionID = Math.random().toString(36).substring(7);
     var selectValue = "";
 
     var lines = [];
@@ -19,6 +20,7 @@ export function uiSat2GraphInteract(context) {
     var newOldLoc = [];
 
     var curState = 0 ;
+    var serverStatus = "Unknown";
     var curBK = 0;
     var curModelID = 0;
     var nModels = 4;
@@ -56,7 +58,7 @@ export function uiSat2GraphInteract(context) {
                 .attr("y",600+adjust);
 
             text.append("tspan")
-                .text("Status: Ready")
+                .text("Status: "+serverStatus)
                 .attr("x",50)
                 .attr("y",650+adjust)
                 .attr("fill","rgba(0, 255, 0, 1.0)");
@@ -88,7 +90,7 @@ export function uiSat2GraphInteract(context) {
                 .attr("y",600+adjust);
 
             text.append("tspan")
-                .text("Status: Running...")
+                .text("Status: "+serverStatus)
                 .attr("x",50)
                 .attr("y",650+adjust)
                 .attr("fill","rgba(255, 127, 0, 1.0)");
@@ -250,6 +252,7 @@ export function uiSat2GraphInteract(context) {
     }
 
     function updateResult(data, selection) {
+        curState = 0;
         new_lines = data.graph.graph[0];
         new_points = data.graph.graph[1];
 
@@ -280,7 +283,7 @@ export function uiSat2GraphInteract(context) {
         console.log("number of lines: " + lines.length);
         console.log("number of points: " + points.length);
         
-        curState = 0;
+        
         oldLoc = [newOldLoc[0], newOldLoc[1]];
 
         //update(selection);
@@ -370,6 +373,8 @@ export function uiSat2GraphInteract(context) {
             msg["nPhase"] = 1;
         }
 
+        msg["sessionID"] = sessionID;
+
 
         fetch(url, {
             method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -390,6 +395,50 @@ export function uiSat2GraphInteract(context) {
     }
 
 
+    function updateStatus(data, selection) {
+        console.log(data);
+        if (serverStatus != data.status) {
+            serverStatus = data.status; 
+
+            if (serverStatus == "Running Sat2Graph") {
+                context.map().pan([0,1],100);
+            } else if (serverStatus == "Downloading Image") {
+                context.map().pan([0,-1],100);
+            } else {
+                context.map().pan([-1,-1],100);
+            }
+
+        }
+        //update(selection);
+    }
+
+    
+    function checkStatus(selection) {
+        var msg = {"cmd":"getstatus", "sessionID":sessionID};
+        url = "http://128.30.198.28:8123/";
+        fetch(url, {
+            method: 'POST', // *GET, POST, PUT, DELETE, etc.
+            mode: 'cors', // no-cors, *cors, same-origin
+            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: 'same-origin', // include, *same-origin, omit
+            headers: {
+              'Content-Type': 'application/json'
+              // 'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            redirect: 'follow', // manual, *follow, error
+            referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            body: JSON.stringify(msg) // body data type must match "Content-Type" header
+          })
+        .then(response => response.json(response))
+        .then(data => updateStatus(data, selection));
+        
+    }
+
+    setInterval(checkStatus, 1000);
+
+
+
+
     return function(selection) {
         function switchUnits() {
             isImperial = !isImperial;
@@ -399,9 +448,6 @@ export function uiSat2GraphInteract(context) {
         var sat2graphbox = selection.append('svg')
             .attr('class', 'sat2graph-box');
         
-        
-
-
         sat2graphbox.append('rect')
             .attr('x', 30)
             .attr('y', 100)
