@@ -23,8 +23,8 @@ export function uiSat2GraphInteract(context) {
     var serverStatus = "Unknown";
     var curBK = 0;
     var curModelID = 0;
-    var nModels = 4;
-    var modelNames = ["80-City Global", "20-City US", "20-City US V2 (1km)", "20-City US V2 (500m)"]
+    var nModels = 5;
+    var modelNames = ["80-City Global", "20-City US", "20-City US V2 (1km)", "20-City US V2 (500m)", "Global-V2 (1km)"]
 
 
     function updateText(selection){
@@ -316,7 +316,7 @@ export function uiSat2GraphInteract(context) {
 
     function switchmodel(selection) {
         curModelID = (curModelID + 1) % nModels;
-        if (curModelID == 2) {
+        if (curModelID == 2 || curModelID == 4) {
             boxsize = 1000;
         } else {
             boxsize = 500;
@@ -358,12 +358,19 @@ export function uiSat2GraphInteract(context) {
             realModelId = 2;
         }
 
-        var msg = {"lat":locShow1[1], "lon":locShow1[0], "v_thr": 0.05, "e_thr": 0.05, "snap_dist": 15, "snap_w": 100, "model_id" : realModelId};
-        if (curModelID == 2) {
+        if (realModelId == 4) {
+            realModelId = 3;
+        }
+
+        var msg = {"lat":locShow1[1], "lon":locShow1[0], "v_thr": 0.05, "e_thr": 0.01, "snap_dist": 15, "snap_w": 100, "model_id" : realModelId};
+        if (curModelID == 2 || curModelID == 4) {
             msg["size"] = 1000;
             msg["padding"] = 28;
             msg["stride"] = 176;
             msg["nPhase"] = 1;
+            if (curModelID == 4) {
+                msg["nPhase"] = 5;
+            }
         }
 
         if (curModelID == 3) {
