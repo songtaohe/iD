@@ -315,7 +315,11 @@ export function uiSat2GraphInteract(context) {
     }
 
     function switchmodel(selection) {
-        curModelID = (curModelID + 1) % nModels;
+        curModelID = curModelID - 1
+        if (curModelID < 0) {
+            curModelID = nModels - 1
+        }
+        //curModelID = (curModelID + 1) % nModels;
         if (curModelID == 2 || curModelID == 4) {
             boxsize = 1000;
         } else {
