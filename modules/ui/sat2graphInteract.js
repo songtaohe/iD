@@ -22,9 +22,9 @@ export function uiSat2GraphInteract(context) {
     var curState = 0 ;
     var serverStatus = "Unknown";
     var curBK = 0;
-    var curModelID = 4;
-    var nModels = 5;
-    var modelNames = ["80-City Global", "20-City US", "20-City US V2 (1km)", "20-City US V2 (500m)", "Global-V2 (1km)"]
+    var curModelID = 5;
+    var nModels = 6;
+    var modelNames = ["80-City Global", "20-City US", "20-City US V2 (1km)", "20-City US V2 (500m)", "Global-V2 (1km)", "Global-V2 (500m)"]
 
 
     function updateText(selection){
@@ -362,6 +362,10 @@ export function uiSat2GraphInteract(context) {
             realModelId = 3;
         }
 
+        if (realModelId == 5) {
+            realModelId = 3;
+        }
+
         var msg = {"lat":locShow1[1], "lon":locShow1[0], "v_thr": 0.05, "e_thr": 0.01, "snap_dist": 15, "snap_w": 100, "model_id" : realModelId};
         if (curModelID == 2 || curModelID == 4) {
             msg["size"] = 1000;
@@ -378,6 +382,13 @@ export function uiSat2GraphInteract(context) {
             msg["padding"] = 14;
             msg["stride"] = 176;
             msg["nPhase"] = 1;
+        }
+
+        if (curModelID == 5) {
+            msg["size"] = 500;
+            msg["padding"] = 14;
+            msg["stride"] = 176;
+            msg["nPhase"] = 5;
         }
 
         msg["sessionID"] = sessionID;
