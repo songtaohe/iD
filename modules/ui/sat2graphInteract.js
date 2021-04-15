@@ -24,7 +24,7 @@ export function uiSat2GraphInteract(context) {
     var curBK = 0;
     var curModelID = 5;
     var nModels = 6;
-    var modelNames = ["80-City Global", "20-City US", "20-City US V2 (1km)", "20-City US V2 (500m)", "Global-V2 (1km)", "Global-V2 (500m)"]
+    var modelNames = ["80-City Global (old)", "20-City US (old)", "20-City US V2 (1km)", "20-City US V2 (500m)", "Global-V2 (1km)", "Global-V2 (500m)"]
 
 
     function updateText(selection){
