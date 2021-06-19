@@ -129,7 +129,8 @@ export function uiSat2GraphInteract(context) {
             .attr("x", posShow1[0])
             .attr("y", posShow2[1])
             .attr("width", posShow2[0] - posShow1[0])
-            .attr("height", posShow1[1] - posShow2[1]);
+            .attr("height", posShow1[1] - posShow2[1])
+            .style("opacity", 0.0);
 
 
         var graphsize = 3 * scale;
@@ -240,7 +241,7 @@ export function uiSat2GraphInteract(context) {
         //console.log("updata number of points: " + points.length);
 
 
-        console.log("{\"lat\":"+loctile[1].toFixed(6)+" ,"+"\"lon\":"+loctile[0].toFixed(6)+", \"lat_n\":1" + ", \"lon_n\":1" + "},");
+        console.log("{\"lat\":"+locShow1[1].toFixed(6)+" ,"+"\"lon\":"+locShow1[0].toFixed(6)+", \"lat_n\":1" + ", \"lon_n\":1" + "},");
         // selection.select('.scale-path')
         //     .attr('d', 'M0.5,0.5v' + tickHeight + 'h' + scale.px + 'v-' + tickHeight);
 
