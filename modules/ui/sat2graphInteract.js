@@ -130,7 +130,7 @@ export function uiSat2GraphInteract(context) {
             .attr("y", posShow2[1])
             .attr("width", posShow2[0] - posShow1[0])
             .attr("height", posShow1[1] - posShow2[1])
-            .style("opacity", 0.0);
+            .style("opacity", 1.0);
 
 
         var graphsize = 3 * scale;
