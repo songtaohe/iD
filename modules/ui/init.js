@@ -351,6 +351,11 @@ export function uiInit(context) {
             .attr('class', 'sat2graph-over-map')
             .call(uiSat2GraphInteract(context));
 
+        var Sat2GraphOverMap = content
+            .append('div')
+            .attr('class', 'sat2graph-over-map')
+            .call(uiSat2GraphInteract(context));
+
 
         // Bind events
         window.onbeforeunload = function() {
