@@ -26,6 +26,7 @@ export function uiSat2GraphInteract(context) {
     var nModels = 6;
     var modelNames = ["80-City Global (old)", "20-City US (old)", "20-City US V2 (1km)", "20-City US V2 (500m)", "Global-V2 (1km)", "Global-V2 (500m)"]
 
+    var globalopacity = 1.0;
 
     function updateText(selection){
         var text = selection.select('.sat2graph-text')
@@ -147,6 +148,10 @@ export function uiSat2GraphInteract(context) {
                 opacity = 0.2;
             }
         }
+
+        opacity = opacity * globalopacity;
+
+
 
         //console.log(oldLoc);
         var bias = projection(oldLoc);
@@ -297,6 +302,11 @@ export function uiSat2GraphInteract(context) {
         points = [];
         lines = [];
 
+        update(selection);
+    }
+
+    function toggleGraph(selection) {
+        globalopacity = 1.0 - globalopacity;
         update(selection);
     }
 
@@ -595,5 +605,10 @@ export function uiSat2GraphInteract(context) {
         context.keybinding().on('m', function() {
             switchmodel(selection);
         });
+
+        context.keybinding().on('r', function() {
+            toggleGraph(selection);
+        });
+
     };
 }
